@@ -1,0 +1,38 @@
+{
+  "buildFiles": [
+    "/home/jorge/AndroidStudioProjects/RTH/app/src/main/cpp/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/jorge/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/jorge/AndroidStudioProjects/RTH/app/.cxx/Debug/2i6z2y25/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/jorge/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/jorge/AndroidStudioProjects/RTH/app/.cxx/Debug/2i6z2y25/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "rth::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "x86",
+      "artifactName": "rth",
+      "output": "/home/jorge/AndroidStudioProjects/RTH/app/build/intermediates/cxx/Debug/2i6z2y25/obj/x86/librth.so",
+      "runtimeFiles": []
+    }
+  },
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/home/jorge/Android/Sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/home/jorge/Android/Sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [],
+  "cppFileExtensions": [
+    "cpp"
+  ]
+}

@@ -1,0 +1,3 @@
+/home/jorge/AndroidStudioProjects/RTH/app/.cxx/Debug/2i6z2y25/x86_64/CMakeFiles/rth.dir
+/home/jorge/AndroidStudioProjects/RTH/app/.cxx/Debug/2i6z2y25/x86_64/CMakeFiles/edit_cache.dir
+/home/jorge/AndroidStudioProjects/RTH/app/.cxx/Debug/2i6z2y25/x86_64/CMakeFiles/rebuild_cache.dir

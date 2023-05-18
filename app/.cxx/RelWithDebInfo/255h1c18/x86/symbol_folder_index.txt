@@ -1,0 +1,1 @@
+/home/jorge/AndroidStudioProjects/RTH/app/build/intermediates/cxx/RelWithDebInfo/255h1c18/obj/x86

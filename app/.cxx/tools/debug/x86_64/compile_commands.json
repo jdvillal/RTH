@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/jorge/AndroidStudioProjects/RTH/app/.cxx/Debug/2i6z2y25/x86_64",
+  "command": "/home/jorge/Android/Sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++ --target=x86_64-none-linux-android24 --sysroot=/home/jorge/Android/Sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/linux-x86_64/sysroot -Drth_EXPORTS -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -o CMakeFiles/rth.dir/native-lib.cpp.o -c /home/jorge/AndroidStudioProjects/RTH/app/src/main/cpp/native-lib.cpp",
+  "file": "/home/jorge/AndroidStudioProjects/RTH/app/src/main/cpp/native-lib.cpp"
+}
+]

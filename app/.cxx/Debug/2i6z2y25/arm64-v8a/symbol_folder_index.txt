@@ -1,0 +1,1 @@
+/home/jorge/AndroidStudioProjects/RTH/app/build/intermediates/cxx/Debug/2i6z2y25/obj/arm64-v8a
