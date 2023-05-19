@@ -31,6 +31,10 @@ public class CamPreview extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if(this.getSupportActionBar() != null){
+            this.getSupportActionBar().hide();
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cam_preview);
 
@@ -39,6 +43,7 @@ public class CamPreview extends AppCompatActivity {
 
         //this.previewView = (PreviewView) findViewById(R.id.previewView);
         this.previewView = binding.previewView;
+        this.previewView.setImplementationMode(PreviewView.ImplementationMode.PERFORMANCE);
         System.out.println("PREVIEW VIEW ================> "+previewView);
         Log.d("CamPreview ==========>", previewView.toString());
 
