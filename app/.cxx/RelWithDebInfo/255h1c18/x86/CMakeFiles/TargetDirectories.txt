@@ -1,3 +1,0 @@
-/home/jorge/AndroidStudioProjects/RTH/app/.cxx/RelWithDebInfo/255h1c18/x86/CMakeFiles/rth.dir
-/home/jorge/AndroidStudioProjects/RTH/app/.cxx/RelWithDebInfo/255h1c18/x86/CMakeFiles/edit_cache.dir
-/home/jorge/AndroidStudioProjects/RTH/app/.cxx/RelWithDebInfo/255h1c18/x86/CMakeFiles/rebuild_cache.dir
