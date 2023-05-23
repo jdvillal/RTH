@@ -1,9 +1,13 @@
 package com.espol.rth;
 
+import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888;
+import static androidx.camera.core.ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.camera2.interop.Camera2Interop;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
@@ -11,16 +15,27 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
+import android.hardware.HardwareBuffer;
 import android.hardware.camera2.CaptureRequest;
+import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.Range;
+import android.util.Size;
 import android.view.View;
 
 import com.espol.rth.databinding.ActivityCamBufferBinding;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
@@ -65,9 +80,15 @@ public class CamBufferActivity extends AppCompatActivity {
     @SuppressLint({"RestrictedApi", "UnsafeOptInUsageError"})
     public void bindCameraAnalysis(ProcessCameraProvider cameraProvider){
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
+        //builder.setOutputImageFormat(OUTPUT_IMAGE_FORMAT_RGBA_8888);//set by default
+        builder.setTargetResolution(new Size(2560, 1440));
+        builder.setMaxResolution(new Size(2560, 1440));
+        //builder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+        builder.setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER);
         @SuppressLint("UnsafeOptInUsageError") Camera2Interop.Extender ext = new Camera2Interop.Extender<>(builder);
         //ext.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF);
         ext.setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, new Range<Integer>(60, 60));
+
         this.imageAnalysis = builder.build();
 
         CameraSelector cameraSelector = new CameraSelector.Builder()
@@ -82,11 +103,21 @@ public class CamBufferActivity extends AppCompatActivity {
                     public void analyze(@NonNull ImageProxy imageProxy) {
                         //long startTime = SystemClock.elapsedRealtime();
                         long tmstmp = imageProxy.getImageInfo().getTimestamp();
-                        imageProxy.close();
+
                         long elapsed = (tmstmp - lastTimestamp)/1000000;
                         lastTimestamp = tmstmp;
                         update_fpsTV(1000/elapsed);
-                        Log.d("ANALYSER =====> ", String.valueOf(elapsed));
+                        Log.d("ANALYSER =====> ", "W: "+ String.valueOf(imageProxy.getImage().getWidth())+" H:"+String.valueOf(imageProxy.getImage().getHeight()));
+                        Log.d("ANALYSER =====>", "format: " + imageProxy.getImage().getFormat() + " " + ImageFormat.YUV_420_888);
+                        Image image = null;
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            image = imageProxy.getImage();
+                            byte[] s = toBitmap(image);
+                            Log.d("ANALYSER =====> ", String.valueOf(s.length) + "Bytes");
+                        }else{}
+                        imageProxy.close();
+
                         //long endTime = SystemClock.elapsedRealtime();
                         //long elapsedMilliSeconds = endTime - startTime;
                         //Log.d("ANALYSER ", "Log.d Time elapsed "+ elapsedMilliSeconds);
@@ -99,6 +130,28 @@ public class CamBufferActivity extends AppCompatActivity {
 
     private void update_fpsTV(long fps){
         this.binding.fpsTV.setText(fps + "FPS");
+    }
+
+
+    public /*Bitmap*/ byte[] toBitmap(Image image) {
+        Image.Plane[] planes = image.getPlanes();
+        ByteBuffer yBuffer = planes[0].getBuffer(); // Y
+        ByteBuffer vuBuffer = planes[2].getBuffer(); // VU
+
+        int ySize = yBuffer.remaining();
+        int vuSize = vuBuffer.remaining();
+
+        byte[] nv21 = new byte[ySize + vuSize];
+
+        yBuffer.get(nv21, 0, ySize);
+        vuBuffer.get(nv21, ySize, vuSize);
+
+        YuvImage yuvImage = new YuvImage(nv21, ImageFormat.NV21, image.getWidth(), image.getHeight(), null);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 50, out);
+        byte[] imageBytes = out.toByteArray();
+        return imageBytes;
+        //return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
     }
 
 
