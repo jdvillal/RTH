@@ -2,6 +2,7 @@
 #include <string>
 #include <string.h>
 #include <android/log.h>
+#include "LinkedList.h"
 
 typedef struct frameNode{
         unsigned long timestamp;
@@ -92,7 +93,6 @@ Java_com_espol_rth_CamBufferActivity_addFrame(
     char str_size[10];
     sprintf(str_size, "%d", (int)array_size);
     __android_log_write(ANDROID_LOG_ERROR, "LOG FROM C++ ======> ", str_size);
-    //signed char *b_array = new signed char[(int)array_size];
     signed char *b_array = (signed char*)malloc((int)array_size);
     env->GetByteArrayRegion(array, 0, (int)array_size, b_array);
     unsigned char *rb_array = (unsigned char*)b_array;
@@ -106,6 +106,7 @@ Java_com_espol_rth_CamBufferActivity_addFrame(
         frameLinkedList_removeFirst(frames_list);
     }
     frameLinkedList_push(frames_list, frame);
+    linkedlist_t *l = new_linkedlist();
     return 1;
 
 }

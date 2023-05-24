@@ -120,23 +120,11 @@ public class CamBufferActivity extends AppCompatActivity {
                             YuvImage  yuvImage = toByteArray(image);
                             int width = image.getWidth();
                             int height = image.getHeight();
-                            long timestamp = image.getTimestamp();
-                            //to_byte_buffer(image);
-                            //toBitmap(image);
-                            addFrame(yuvImage.getYuvData(), yuvImage.getYuvData().length, width, height, timestamp);
                             imageProxy.close();
-                            //Log.d("ANALYSER =====> ", String.valueOf(byte_array.length) + "Bytes");
-
-
-
+                            addFrame(yuvImage.getYuvData(), yuvImage.getYuvData().length, width, height, lastTimestamp);
                         }else{
                             imageProxy.close();
                         }
-
-                        //long endTime = SystemClock.elapsedRealtime();
-                        //long elapsedMilliSeconds = endTime - startTime;
-                        //Log.d("ANALYSER ", "Log.d Time elapsed "+ elapsedMilliSeconds);
-
                     }
                 });
 
