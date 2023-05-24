@@ -11,6 +11,7 @@ import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.imagecapture.RgbaImageProxy;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
 
@@ -30,6 +31,7 @@ import android.util.Log;
 import android.util.Range;
 import android.util.Size;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.espol.rth.databinding.ActivityCamBufferBinding;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -56,6 +58,7 @@ public class CamBufferActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cam_buffer);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         this.set_fullscreen();
 
@@ -81,6 +84,7 @@ public class CamBufferActivity extends AppCompatActivity {
     public void bindCameraAnalysis(ProcessCameraProvider cameraProvider){
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
         //builder.setOutputImageFormat(OUTPUT_IMAGE_FORMAT_RGBA_8888);//set by default
+        builder.setOutputImageFormat(OUTPUT_IMAGE_FORMAT_YUV_420_888);
         builder.setTargetResolution(new Size(2560, 1440));
         builder.setMaxResolution(new Size(2560, 1440));
         //builder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
@@ -113,10 +117,21 @@ public class CamBufferActivity extends AppCompatActivity {
 
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             image = imageProxy.getImage();
-                            byte[] s = toBitmap(image);
-                            Log.d("ANALYSER =====> ", String.valueOf(s.length) + "Bytes");
-                        }else{}
-                        imageProxy.close();
+                            YuvImage  yuvImage = toByteArray(image);
+                            int width = image.getWidth();
+                            int height = image.getHeight();
+                            long timestamp = image.getTimestamp();
+                            //to_byte_buffer(image);
+                            //toBitmap(image);
+                            addFrame(yuvImage.getYuvData(), yuvImage.getYuvData().length, width, height, timestamp);
+                            imageProxy.close();
+                            //Log.d("ANALYSER =====> ", String.valueOf(byte_array.length) + "Bytes");
+
+
+
+                        }else{
+                            imageProxy.close();
+                        }
 
                         //long endTime = SystemClock.elapsedRealtime();
                         //long elapsedMilliSeconds = endTime - startTime;
@@ -133,7 +148,7 @@ public class CamBufferActivity extends AppCompatActivity {
     }
 
 
-    public /*Bitmap*/ byte[] toBitmap(Image image) {
+    public /*Bitmap*/ YuvImage toByteArray(Image image) {
         Image.Plane[] planes = image.getPlanes();
         ByteBuffer yBuffer = planes[0].getBuffer(); // Y
         ByteBuffer vuBuffer = planes[2].getBuffer(); // VU
@@ -142,16 +157,49 @@ public class CamBufferActivity extends AppCompatActivity {
         int vuSize = vuBuffer.remaining();
 
         byte[] nv21 = new byte[ySize + vuSize];
-
         yBuffer.get(nv21, 0, ySize);
         vuBuffer.get(nv21, ySize, vuSize);
-
         YuvImage yuvImage = new YuvImage(nv21, ImageFormat.NV21, image.getWidth(), image.getHeight(), null);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 50, out);
-        byte[] imageBytes = out.toByteArray();
-        return imageBytes;
+        //yuvImage.getYuvData();
+        Log.d("ANALYSIS INNER ====< ", "nv21 size:  "+ yuvImage.getYuvData().length + " bytes" + "  arr size: " +yuvImage.getYuvData().length);
+        //ByteArrayOutputStream out = new ByteArrayOutputStream();
+        return yuvImage;
+        //new YuvImage();
+
+        /*start time elapse*/
+        //long startTime = SystemClock.elapsedRealtime();
+        /*end*/
+
+        //yuvImage.compressToJpeg(new Rect(0, 0, yuvImage.getWidth(), yuvImage.getHeight()), 100, out);
+
+        /*End time elapse */
+        //long endTime = SystemClock.elapsedRealtime();
+        //long elapsedMilliSeconds = endTime - startTime;
+        //Log.d("ANALYSER TIME ELAPSE ====> ", "Inner Time elapsed "+ elapsedMilliSeconds);
+        /* End */
+
+        //byte[] imageBytes = out.toByteArray();
+        //return imageBytes;
         //return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+    }
+
+    private void img_pixels(ImageProxy imageProxy){
+        //int c = imageProxy.getPlanes()[0].getBuffer(0);
+    }
+
+    private Bitmap toBitmap(Image image) {
+        Image.Plane[] planes = image.getPlanes();
+        ByteBuffer buffer = planes[0].getBuffer();
+        ByteBuffer b = buffer.duplicate();
+        //Log.d("ANALYSER INNER 2 ===> ", String.valueOf(planes[0].buffer[0]));
+        int pixelStride = planes[0].getPixelStride();
+        int rowStride = planes[0].getRowStride();
+        int rowPadding = rowStride - pixelStride * image.getWidth();
+        Bitmap bitmap = Bitmap.createBitmap(image.getWidth()+rowPadding/pixelStride,
+                image.getHeight(), Bitmap.Config.ARGB_8888);
+        bitmap.copyPixelsFromBuffer(buffer);
+        Log.d("BITMAP ===> ", String.valueOf(b.array().length));
+        return bitmap;
     }
 
 
@@ -170,11 +218,11 @@ public class CamBufferActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(uiOptions);
     }
 
-
     private Executor getExecutor() {
         return ContextCompat.getMainExecutor(this);
     }
 
     public native String stringFromJNI();
+    public native int addFrame(byte[] array, int size, int width, int height, long timestamp);
 
 }
